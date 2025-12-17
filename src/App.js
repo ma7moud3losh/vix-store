@@ -9,95 +9,6 @@ import CartPopup from './components/CartPopup';
 import AdminPanel from './components/AdminPanel';
 import { storage } from './utils/storage';
 
-
-
-
-
-
-// بيانات المنتجات الافتراضية
-const initialProducts = [
-  {
-    id: 1,
-    name: "قميص VIX الكلاسيكي",
-    price: 299,
-    category: "قمصان",
-    image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "قميص قطني عالي الجودة بتصميم كلاسيكي وأنيق",
-    colors: ['#000000', '#1E3A8A', '#374151', '#C41E3A'],
-    sizes: ['S', 'M', 'L', 'XL'],
-    stock: 15,
-    rating: 4.8,
-    sku: 'VIX-SHIRT-001'
-  },
-  {
-    id: 2,
-    name: "جاكيت جلد VIX",
-    price: 899,
-    category: "جاكيتات",
-    image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "جاكيت جلد طبيعي بتصميم عصري ومتانة عالية",
-    colors: ['#000000', '#78350F', '#44403C', '#1F2937'],
-    sizes: ['M', 'L', 'XL'],
-    stock: 8,
-    rating: 4.9,
-    sku: 'VIX-JACKET-001'
-  },
-  {
-    id: 3,
-    name: "بنطال VIX الرسمي",
-    price: 399,
-    category: "بناطيل",
-    image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "بنطال رسمي مصنوع من أفضل أنواع القماش",
-    colors: ['#000000', '#374151', '#1F2937', '#4B5563'],
-    sizes: ['30', '32', '34', '36', '38'],
-    stock: 20,
-    rating: 4.7,
-    sku: 'VIX-PANTS-001'
-  },
-  {
-    id: 4,
-    name: "تيشيرت VIX الأساسي",
-    price: 199,
-    category: "تيشيرتات",
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "تيشيرت قطني ناعم ومريح للارتداء اليومي",
-    colors: ['#FFFFFF', '#000000', '#C41E3A', '#1E3A8A', '#10B981'],
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    stock: 25,
-    rating: 4.6,
-    sku: 'VIX-TSHIRT-001'
-  },
-  {
-    id: 5,
-    name: "بدلة VIX الكلاسيكية",
-    price: 1299,
-    category: "بدلات",
-    image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "بدلة كاملة بتصميم كلاسيكي وأناقة استثنائية",
-    colors: ['#000000', '#1F2937', '#111827', '#374151'],
-    sizes: ['48', '50', '52', '54'],
-    stock: 5,
-    rating: 5.0,
-    sku: 'VIX-SUIT-001'
-  },
-  {
-    id: 6,
-    name: "معطف VIX الشتوي",
-    price: 799,
-    category: "معاطف",
-    image: "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    description: "معطف شتوي دافئ بتصميم عصري وأنيق",
-    colors: ['#000000', '#374151', '#78350F', '#1F2937'],
-    sizes: ['M', 'L', 'XL'],
-    stock: 12,
-    rating: 4.8,
-    sku: 'VIX-COAT-001'
-  }
-];
-
-
-
 const App = () => {
   const [currentView, setCurrentView] = useState('home');
   const [showAdminButton, setShowAdminButton] = useState(false);
@@ -113,15 +24,12 @@ const App = () => {
   const [adminSecret, setAdminSecret] = useState('');
   const [secretVisible, setSecretVisible] = useState(false);
 
-  // تحميل البيانات الأولية
+  // تحميل البيانات من التخزين المحلي
   useEffect(() => {
     const handleScroll = () => {
       const savedProducts = storage.loadProducts();
       if (savedProducts.length > 0) {
         setProducts(savedProducts);
-      } else {
-        setProducts(initialProducts);
-        storage.saveProducts(initialProducts);
       }
       
       const adminStatus = storage.loadAdminStatus();
@@ -143,9 +51,6 @@ const App = () => {
     const savedProducts = storage.loadProducts();
     if (savedProducts.length > 0) {
       setProducts(savedProducts);
-    } else {
-      setProducts(initialProducts);
-      storage.saveProducts(initialProducts);
     }
     
     const adminStatus = storage.loadAdminStatus();
