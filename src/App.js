@@ -1,0 +1,450 @@
+import React, { useState, useEffect } from 'react';
+import './App.css';
+import Header from './components/Header';
+import Hero from './components/Hero';
+import Products from './components/Products';
+import About from './components/About';
+import Footer from './components/Footer';
+import CartPopup from './components/CartPopup';
+import AdminPanel from './components/AdminPanel';
+import { storage } from './utils/storage';
+
+
+
+
+
+
+// بيانات المنتجات الافتراضية
+const initialProducts = [
+  {
+    id: 1,
+    name: "قميص VIX الكلاسيكي",
+    price: 299,
+    category: "قمصان",
+    image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    description: "قميص قطني عالي الجودة بتصميم كلاسيكي وأنيق",
+    colors: ['#000000', '#1E3A8A', '#374151', '#C41E3A'],
+    sizes: ['S', 'M', 'L', 'XL'],
+    stock: 15,
+    rating: 4.8,
+    sku: 'VIX-SHIRT-001'
+  },
+  {
+    id: 2,
+    name: "جاكيت جلد VIX",
+    price: 899,
+    category: "جاكيتات",
+    image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    description: "جاكيت جلد طبيعي بتصميم عصري ومتانة عالية",
+    colors: ['#000000', '#78350F', '#44403C', '#1F2937'],
+    sizes: ['M', 'L', 'XL'],
+    stock: 8,
+    rating: 4.9,
+    sku: 'VIX-JACKET-001'
+  },
+  {
+    id: 3,
+    name: "بنطال VIX الرسمي",
+    price: 399,
+    category: "بناطيل",
+    image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    description: "بنطال رسمي مصنوع من أفضل أنواع القماش",
+    colors: ['#000000', '#374151', '#1F2937', '#4B5563'],
+    sizes: ['30', '32', '34', '36', '38'],
+    stock: 20,
+    rating: 4.7,
+    sku: 'VIX-PANTS-001'
+  },
+  {
+    id: 4,
+    name: "تيشيرت VIX الأساسي",
+    price: 199,
+    category: "تيشيرتات",
+    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    description: "تيشيرت قطني ناعم ومريح للارتداء اليومي",
+    colors: ['#FFFFFF', '#000000', '#C41E3A', '#1E3A8A', '#10B981'],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    stock: 25,
+    rating: 4.6,
+    sku: 'VIX-TSHIRT-001'
+  },
+  {
+    id: 5,
+    name: "بدلة VIX الكلاسيكية",
+    price: 1299,
+    category: "بدلات",
+    image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    description: "بدلة كاملة بتصميم كلاسيكي وأناقة استثنائية",
+    colors: ['#000000', '#1F2937', '#111827', '#374151'],
+    sizes: ['48', '50', '52', '54'],
+    stock: 5,
+    rating: 5.0,
+    sku: 'VIX-SUIT-001'
+  },
+  {
+    id: 6,
+    name: "معطف VIX الشتوي",
+    price: 799,
+    category: "معاطف",
+    image: "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    description: "معطف شتوي دافئ بتصميم عصري وأنيق",
+    colors: ['#000000', '#374151', '#78350F', '#1F2937'],
+    sizes: ['M', 'L', 'XL'],
+    stock: 12,
+    rating: 4.8,
+    sku: 'VIX-COAT-001'
+  }
+];
+
+
+
+const App = () => {
+  const [currentView, setCurrentView] = useState('home');
+  const [showAdminButton, setShowAdminButton] = useState(false);
+  const [cart, setCart] = useState([]);
+  const [cartVisible, setCartVisible] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loginData, setLoginData] = useState({
+    username: '',
+    password: ''
+  });
+  const [loginError, setLoginError] = useState('');
+  const [adminSecret, setAdminSecret] = useState('');
+  const [secretVisible, setSecretVisible] = useState(false);
+
+  // تحميل البيانات الأولية
+  useEffect(() => {
+    const handleScroll = () => {
+      const savedProducts = storage.loadProducts();
+      if (savedProducts.length > 0) {
+        setProducts(savedProducts);
+      } else {
+        setProducts(initialProducts);
+        storage.saveProducts(initialProducts);
+      }
+      
+      const adminStatus = storage.loadAdminStatus();
+      if (adminStatus) {
+        setIsAdmin(true);
+      }
+      
+      const fadeElements = document.querySelectorAll('.fade-in');
+      fadeElements.forEach(element => {
+        const elementTop = element.getBoundingClientRect().top;
+        const windowHeight = window.innerHeight;
+        if (elementTop < windowHeight - 100) {
+          element.classList.add('visible');
+        }
+      });
+    };
+    
+    // تحميل البيانات من localStorage
+    const savedProducts = storage.loadProducts();
+    if (savedProducts.length > 0) {
+      setProducts(savedProducts);
+    } else {
+      setProducts(initialProducts);
+      storage.saveProducts(initialProducts);
+    }
+    
+    const adminStatus = storage.loadAdminStatus();
+    if (adminStatus) {
+      setIsAdmin(true);
+    }
+    
+    // إضافة scroll listener
+    window.addEventListener('scroll', handleScroll);
+    setTimeout(() => handleScroll(), 100);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  // حفظ المنتجات عند التغيير
+  useEffect(() => {
+    if (products.length > 0) {
+      storage.saveProducts(products);
+    }
+  }, [products]);
+
+  // مفاتيح الاختصار للإدارة
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      // Ctrl + Shift + A لإظهار/إخفاء زر الإدارة
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        e.preventDefault();
+        setShowAdminButton(prev => !prev);
+      }
+      
+      // Esc للخروج من أي عرض
+      if (e.key === 'Escape') {
+        if (currentView !== 'home') {
+          setCurrentView('home');
+        }
+        setCartVisible(false);
+      }
+      
+      // Ctrl + Alt + L لدخول الإدارة مباشرة
+      if (e.ctrlKey && e.altKey && e.key === 'L') {
+        e.preventDefault();
+        setCurrentView('login');
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [currentView]);
+
+  // تسجيل دخول الإدارة
+  const handleAdminLogin = (e) => {
+    e.preventDefault();
+    
+    // التحقق من بيانات الدخول
+    const isCredentialsValid = 
+      loginData.username === 'admin' && 
+      loginData.password === 'vix2023';
+    
+    const isSecretValid = adminSecret === 'VIX123';
+    
+    if (isCredentialsValid && isSecretValid) {
+      setIsAdmin(true);
+      storage.saveAdminStatus(true);
+      setLoginError('');
+      setCurrentView('admin');
+      setLoginData({ username: '', password: '' });
+      setAdminSecret('');
+      setSecretVisible(false);
+    } else {
+      setLoginError('بيانات الدخول غير صحيحة');
+    }
+  };
+
+  // تسجيل خروج الإدارة
+  const handleAdminLogout = () => {
+    setIsAdmin(false);
+    storage.saveAdminStatus(false);
+    setCurrentView('home');
+    setShowAdminButton(false);
+  };
+
+  // إضافة منتج للسلة
+  const addToCart = (product, selectedColor, selectedSize) => {
+    const existingItem = cart.find(item => 
+      item.id === product.id && 
+      item.selectedColor === selectedColor && 
+      item.selectedSize === selectedSize
+    );
+
+    if (existingItem) {
+      // زيادة الكمية إذا المنتج موجود
+      setCart(cart.map(item =>
+        item.cartId === existingItem.cartId
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      ));
+    } else {
+      // إضافة منتج جديد
+      const cartItem = {
+        ...product,
+        selectedColor,
+        selectedSize,
+        cartId: Date.now() + Math.random(),
+        quantity: 1
+      };
+      setCart([...cart, cartItem]);
+    }
+    
+    setCartVisible(true);
+  };
+
+  // إزالة منتج من السلة
+  const removeFromCart = (cartId) => {
+    setCart(cart.filter(item => item.cartId !== cartId));
+  };
+
+  // تحديث كمية المنتج
+  const updateQuantity = (cartId, newQuantity) => {
+    if (newQuantity < 1) {
+      removeFromCart(cartId);
+      return;
+    }
+    
+    setCart(cart.map(item => 
+      item.cartId === cartId ? { ...item, quantity: newQuantity } : item
+    ));
+  };
+
+  // حساب الإجمالي
+  const getTotalPrice = () => {
+    return cart.reduce((total, item) => 
+      total + (item.price * (item.quantity || 1)), 0
+    );
+  };
+
+  // تحديث المنتجات
+  const updateProducts = (newProducts) => {
+    setProducts(newProducts);
+    storage.saveProducts(newProducts);
+  };
+
+  // تفريغ السلة بعد الشراء
+  const clearCart = () => {
+    setCart([]);
+    setCartVisible(false);
+  };
+
+  // زر الوصول للإدارة
+  const AdminAccessButton = () => {
+    if (!showAdminButton || currentView === 'admin' || currentView === 'login') return null;
+    
+    return (
+      <button 
+        className="admin-access-btn"
+        onClick={() => setCurrentView('login')}
+        title="لوحة التحكم (Ctrl+Shift+A)"
+      >
+        ⚙️
+      </button>
+    );
+  };
+
+  // عرض المحتوى حسب الصفحة الحالية
+  const renderContent = () => {
+    switch(currentView) {
+      case 'admin':
+        return (
+          <AdminPanel 
+            products={products}
+            setProducts={updateProducts}
+            onLogout={handleAdminLogout}
+            onBack={() => setCurrentView('home')}
+          />
+        );
+        
+      case 'login':
+        return (
+          <div className="admin-login-page">
+            <div className="login-backdrop" onClick={() => setCurrentView('home')}></div>
+            <div className="login-modal">
+              <div className="modal-header">
+                <h2>VIX Admin Panel</h2>
+                <button className="close-modal" onClick={() => setCurrentView('home')}>×</button>
+              </div>
+              <div className="modal-body">
+                <form onSubmit={handleAdminLogin} className="login-form">
+                  <div className="form-group">
+                    <label>اسم المستخدم</label>
+                    <input 
+                      type="text" 
+                      value={loginData.username}
+                      onChange={(e) => setLoginData({...loginData, username: e.target.value})}
+                      placeholder="أدخل اسم المستخدم"
+                      required
+                      autoFocus
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>كلمة المرور</label>
+                    <input 
+                      type="password" 
+                      value={loginData.password}
+                      onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                      placeholder="أدخل كلمة المرور"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>الكود السري</label>
+                    <div className="secret-input">
+                      <input 
+                        type={secretVisible ? "text" : "password"}
+                        value={adminSecret}
+                        onChange={(e) => setAdminSecret(e.target.value)}
+                        placeholder="أدخل الكود السري"
+                        required
+                      />
+                      <button 
+                        type="button"
+                        className="toggle-secret"
+                        onClick={() => setSecretVisible(!secretVisible)}
+                      >
+                        {secretVisible ? "🙈" : "👁️"}
+                      </button>
+                    </div>
+                    <small className="hint">الكود السري: VIX123</small>
+                  </div>
+                  
+                  {loginError && <div className="error-message">{loginError}</div>}
+                  
+                  <div className="form-actions">
+                    <button type="submit" className="login-btn">
+                      دخول لوحة التحكم
+                    </button>
+                    <button 
+                      type="button" 
+                      className="cancel-btn"
+                      onClick={() => setCurrentView('home')}
+                    >
+                      إلغاء
+                    </button>
+                  </div>
+                </form>
+                
+                <div className="login-info">
+                  <h4>بيانات الدخول للتجربة:</h4>
+                  <div className="credentials">
+                    <p><strong>اسم المستخدم:</strong> admin</p>
+                    <p><strong>كلمة المرور:</strong> vix2023</p>
+                    <p><strong>الكود السري:</strong> VIX123</p>
+                  </div>
+                  <div className="shortcuts">
+                    <h4>مفاتيح الاختصار:</h4>
+                    <p><kbd>Ctrl + Shift + A</kbd> إظهار/إخفاء زر الإدارة</p>
+                    <p><kbd>Ctrl + Alt + L</kbd> دخول الإدارة مباشرة</p>
+                    <p><kbd>ESC</kbd> الخروج</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+        
+      default:
+        return (
+          <>
+            <Header 
+              cartCount={cart.length} 
+              onCartClick={() => setCartVisible(true)}
+              showAdminButton={showAdminButton}
+              onAdminClick={() => setCurrentView('login')}
+            />
+            <Hero />
+            <Products products={products} onAddToCart={addToCart} />
+            <About />
+            <Footer />
+            <CartPopup 
+              cart={cart}
+              isVisible={cartVisible}
+              onClose={() => setCartVisible(false)}
+              onRemoveItem={removeFromCart}
+              onUpdateQuantity={updateQuantity}
+              totalPrice={getTotalPrice()}
+              onClearCart={clearCart}
+            />
+            <AdminAccessButton />
+          </>
+        );
+    }
+  };
+
+  return (
+    <div className="app">
+      {renderContent()}
+    </div>
+  );
+};
+
+export default App;
