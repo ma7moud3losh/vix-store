@@ -8,8 +8,100 @@ import Footer from './components/Footer';
 import CartPopup from './components/CartPopup';
 import AdminPanel from './components/AdminPanel';
 import { storage } from './utils/storage';
+import { supabase } from './utils/supabase';
+
+
+
 
 const App = () => {
+
+  // استبدال useEffect الحالي في App.js بهذا:
+useEffect(() => {
+  const fetchProducts = async () => {
+    console.log('🔄 جاري تحميل المنتجات من Supabase...');
+    
+    try {
+      // محاولة الجلب من Supabase
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('❌ فشل تحميل من Supabase:', error.message);
+        
+        // استخدام البيانات المحلية كبديل
+        const localProducts = JSON.parse(localStorage.getItem('vix_products') || '[]');
+        
+        if (localProducts.length > 0) {
+          console.log(`📱 استخدام ${localProducts.length} منتج من localStorage`);
+          setProducts(localProducts);
+        } else {
+          console.log('📝 إنشاء بيانات افتراضية...');
+          
+          // بيانات افتراضية للطوارئ
+          const defaultProducts = [
+            {
+              id: 1,
+              name: "قميص VIX الكلاسيكي",
+              price: 299,
+              category: "قمصان",
+              image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c",
+              description: "قميص قطني عالي الجودة",
+              colors: ['#000000', '#C41E3A'],
+              sizes: ['S', 'M', 'L', 'XL'],
+              stock: 15,
+              rating: 4.8,
+              sku: 'VIX-001',
+              created_at: new Date().toISOString()
+            },
+            {
+              id: 2,
+              name: "جاكيت جلد VIX",
+              price: 899,
+              category: "جاكيتات",
+              image: "https://images.unsplash.com/photo-1551028719-00167b16eac5",
+              description: "جاكيت جلد طبيعي",
+              colors: ['#000000', '#8B4513'],
+              sizes: ['M', 'L', 'XL'],
+              stock: 8,
+              rating: 4.9,
+              sku: 'VIX-002',
+              created_at: new Date().toISOString()
+            }
+          ];
+          
+          setProducts(defaultProducts);
+          localStorage.setItem('vix_products', JSON.stringify(defaultProducts));
+        }
+        
+        return;
+      }
+      
+      // إذا نجح الاتصال
+      if (data && data.length > 0) {
+        console.log(`✅ تم تحميل ${data.length} منتج من Supabase`);
+        setProducts(data);
+        
+        // حفظ نسخة محلية
+        localStorage.setItem('vix_products', JSON.stringify(data));
+      } else {
+        console.log('⚠️ لا توجد منتجات في Supabase');
+        
+        // استخدام بيانات محلية
+        const localProducts = JSON.parse(localStorage.getItem('vix_products') || '[]');
+        if (localProducts.length > 0) {
+          setProducts(localProducts);
+        }
+      }
+      
+    } catch (error) {
+      console.error('❌ خطأ غير متوقع:', error);
+    }
+  };
+  
+  fetchProducts();
+}, []);
   const [currentView, setCurrentView] = useState('home');
   const [showAdminButton, setShowAdminButton] = useState(false);
   const [cart, setCart] = useState([]);
@@ -25,48 +117,32 @@ const App = () => {
   const [secretVisible, setSecretVisible] = useState(false);
 
   // تحميل البيانات من التخزين المحلي
-  useEffect(() => {
-    const handleScroll = () => {
-      const savedProducts = storage.loadProducts();
-      if (savedProducts.length > 0) {
-        setProducts(savedProducts);
+useEffect(() => {
+  const handleScroll = () => {
+    const fadeElements = document.querySelectorAll('.fade-in');
+    fadeElements.forEach(element => {
+      const elementTop = element.getBoundingClientRect().top;
+      const windowHeight = window.innerHeight;
+      if (elementTop < windowHeight - 100) {
+        element.classList.add('visible');
       }
-      
-      const adminStatus = storage.loadAdminStatus();
-      if (adminStatus) {
-        setIsAdmin(true);
-      }
-      
-      const fadeElements = document.querySelectorAll('.fade-in');
-      fadeElements.forEach(element => {
-        const elementTop = element.getBoundingClientRect().top;
-        const windowHeight = window.innerHeight;
-        if (elementTop < windowHeight - 100) {
-          element.classList.add('visible');
-        }
-      });
-    };
-    
-    // تحميل البيانات من localStorage
-    const savedProducts = storage.loadProducts();
-    if (savedProducts.length > 0) {
-      setProducts(savedProducts);
-    }
-    
-    const adminStatus = storage.loadAdminStatus();
-    if (adminStatus) {
-      setIsAdmin(true);
-    }
-    
-    // إضافة scroll listener
-    window.addEventListener('scroll', handleScroll);
-    setTimeout(() => handleScroll(), 100);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+    });
+  };
 
+  const adminStatus = storage.loadAdminStatus();
+  if (adminStatus) {
+    setIsAdmin(true);
+  }
+
+  window.addEventListener('scroll', handleScroll);
+  setTimeout(handleScroll, 100);
+
+  return () => window.removeEventListener('scroll', handleScroll);
+}, []);
+
+
+
+  
   // حفظ المنتجات عند التغيير
   useEffect(() => {
     if (products.length > 0) {
@@ -279,7 +355,6 @@ const App = () => {
                         {secretVisible ? "🙈" : "👁️"}
                       </button>
                     </div>
-                    <small className="hint">الكود السري: VIX123</small>
                   </div>
                   
                   {loginError && <div className="error-message">{loginError}</div>}
@@ -298,23 +373,11 @@ const App = () => {
                   </div>
                 </form>
                 
-                <div className="login-info">
-                  <h4>بيانات الدخول للتجربة:</h4>
-                  <div className="credentials">
-                    <p><strong>اسم المستخدم:</strong> admin</p>
-                    <p><strong>كلمة المرور:</strong> vix2023</p>
-                    <p><strong>الكود السري:</strong> VIX123</p>
-                  </div>
-                  <div className="shortcuts">
-                    <h4>مفاتيح الاختصار:</h4>
-                    <p><kbd>Ctrl + Shift + A</kbd> إظهار/إخفاء زر الإدارة</p>
-                    <p><kbd>Ctrl + Alt + L</kbd> دخول الإدارة مباشرة</p>
-                    <p><kbd>ESC</kbd> الخروج</p>
+                
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            
         );
         
       default:
