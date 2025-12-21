@@ -1854,6 +1854,10 @@ const AdminPanel = ({ products, setProducts, onLogout, onBack }) => {
           margin-bottom: 5px;
         }
 
+        .product-image-container img {
+        object-fit: contain;
+        }
+
         .item-details {
           display: flex;
           gap: 10px;
@@ -1931,5 +1935,6 @@ const AdminPanel = ({ products, setProducts, onLogout, onBack }) => {
     </div>
   );
 };
+
 
 export default AdminPanel;
