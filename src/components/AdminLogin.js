@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // تعليق استيراد Supabase مؤقتاً
-// import { supabase } from '../utils/supabase';
+import { supabase } from '../utils/supabase';
 
 const AdminPanel = ({ products, setProducts, onLogout, onBack }) => {
   const [editingProduct, setEditingProduct] = useState(null);
@@ -104,3 +104,4 @@ const AdminPanel = ({ products, setProducts, onLogout, onBack }) => {
 };
 
 export default AdminPanel;
+
