@@ -18,16 +18,27 @@ const Footer = () => {
           </div>
           <div className="footer-section">
             <h4>اتصل بنا</h4>
-            <p>📞 01234567890</p>
-            <p>📧 info@vix.com</p>
-            <p>📍 القاهرة، مصر</p>
+            <p>📞 +201144382584</p>
+            <p>📍 المطرية الدقهليه</p>
           </div>
           <div className="footer-section">
             <h4>تابعنا</h4>
             <div className="social-icons">
-              <a href="#">📘</a>
-              <a href="#">📷</a>
-              <a href="#">🐦</a>
+               <a href="https://instagram.com" class="social-icon" target="_blank">
+        <div class="icon-circle instagram">📸</div>
+    </a>
+               <a href="https://www.facebook.com/share/1AeNcy2JsK/?mibextid=wwXIfr" 
+       class="facebook-btn pulse"
+       target="_blank"
+       title="تابعنا على فيسبوك">
+        👤
+    </a>
+              <a href="https://whatsapp.com/channel/0029VbBueWq6rsQp2oOLmA3D" 
+   class="whatsapp-channel"
+   target="_blank"
+   title="انضم لقناة واتساب">
+    💬
+</a>
             </div>
           </div>
         </div>
