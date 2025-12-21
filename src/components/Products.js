@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ProductCard from './ProductCard';
+import { supabase } from '../utils/supabase';
 
 const Products = ({ products, onAddToCart }) => {
   const [selectedCategory, setSelectedCategory] = useState('الكل');
@@ -52,3 +53,4 @@ const Products = ({ products, onAddToCart }) => {
 };
 
 export default Products;
+
