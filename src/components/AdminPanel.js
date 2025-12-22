@@ -739,7 +739,7 @@ const AdminPanel = ({ products, setProducts, onLogout, onBack }) => {
                       <option value="جاكيتات">جاكيتات</option>
                       <option value="بناطيل">بناطيل</option>
                       <option value="تيشيرتات">تيشيرتات</option>
-                      <option value="بدلات">بدلات</option>
+                      <option value="هودي">هودي</option>
                       <option value="معاطف">معاطف</option>
                     </select>
                   </div>
@@ -1006,7 +1006,7 @@ const AdminPanel = ({ products, setProducts, onLogout, onBack }) => {
                     <option value="جاكيتات">جاكيتات</option>
                     <option value="بناطيل">بناطيل</option>
                     <option value="تيشيرتات">تيشيرتات</option>
-                    <option value="بدلات">بدلات</option>
+                    <option value="هودي">هودي</option>
                     <option value="معاطف">معاطف</option>
                   </select>
                 </div>
@@ -1515,9 +1515,9 @@ const AdminPanel = ({ products, setProducts, onLogout, onBack }) => {
         }
 
         .search-input, .filter-select {
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 1);
           border: 1px solid #333;
-          color: #fff;
+          color: #000000ff;
           padding: 8px 12px;
           border-radius: 6px;
           min-width: 150px;
@@ -1541,6 +1541,7 @@ const AdminPanel = ({ products, setProducts, onLogout, onBack }) => {
           overflow: hidden;
           transition: all 0.3s ease;
           border: 1px solid rgba(255, 255, 255, 0.1);
+          
         }
 
         .product-card:hover {
@@ -1549,12 +1550,14 @@ const AdminPanel = ({ products, setProducts, onLogout, onBack }) => {
           border-color: rgba(59, 130, 246, 0.5);
         }
 
-        .product-image-container {
+        .product-image-container{
           position: relative;
           height: 200px;
           overflow: hidden;
         }
-
+        .product-image-container img{
+        object-fit: contain;
+        }
         .product-image {
           width: 100%;
           height: 100%;
@@ -1854,10 +1857,6 @@ const AdminPanel = ({ products, setProducts, onLogout, onBack }) => {
           margin-bottom: 5px;
         }
 
-        .product-image-container img {
-        object-fit: contain;
-        }
-
         .item-details {
           display: flex;
           gap: 10px;
@@ -1935,6 +1934,5 @@ const AdminPanel = ({ products, setProducts, onLogout, onBack }) => {
     </div>
   );
 };
-
 
 export default AdminPanel;
